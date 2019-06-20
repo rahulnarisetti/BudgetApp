@@ -86,7 +86,7 @@ var UIController=(function()
             return {
                 type: document.querySelector(DOMStrings.inputType).value,
                 inputText: document.querySelector(DOMStrings.inputDescription).value,
-                inputNumber: document.querySelector(DOMStrings.inputValue).value,
+                inputNumber: parseFloat(document.querySelector(DOMStrings.inputValue).value)
             };
         },
         getDom: function(){
@@ -113,6 +113,19 @@ var UIController=(function()
 
             document.querySelector(element).insertAdjacentHTML('beforeend',newhtml);
 
+        },
+
+        clearList: function(){
+            var fields,fieldArr;
+            fields=document.querySelectorAll(DOMStrings.inputDescription+','+DOMStrings.inputValue);
+            fieldArr=Array.prototype.slice.call(fields);
+            
+            for (var i=0;i<fieldArr.length;i++)
+            {
+                fieldArr[i].value="";
+            }
+
+            fieldArr[0].focus();
         }
     };
 
@@ -141,15 +154,26 @@ var Controller=(function(BudgetCon,UICon)
 
     };
 
+    var updateBudget=function()
+    {
 
+    }
 
     var enterInput=function()
     {
         var inputData=UICon.getInputData();
 
+        if(inputData.inputDescription !== "" && inputData.inputValue !== NaN && inputData.inputNumber >0)
+        {
         var display=BudgetCon.addNewItem(inputData.type,inputData.inputText,inputData.inputNumber);
 
         UICon.addListItem(display,inputData.type);
+
+        UICon.clearList();
+
+        updateBudget();
+
+        }
 
     };
 
@@ -159,7 +183,7 @@ var Controller=(function(BudgetCon,UICon)
     return {
         init: function()
         {
-            console.log('ashashasha');
+            console.log('Application Has Started');
             return setupEvent();
         }
 
