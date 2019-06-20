@@ -25,11 +25,27 @@ var budgetController=(function()
         totalitems: {
             exp: 0,
             inc: 0
-        }
+        },
+        budget: 0,
+        percentage: -1
 
     };
 
+    var sumCalc=function(type)
+    {
+        sum=0;
+        for (var i=0;i<data.allitems[type].length;i++)
+        {
+            sum += data.allitems[type][i].value;
+        }
+
+        data.totalitems[type]=sum;
+
+    }
+
     return {
+        
+        
         addNewItem: function(type, des, val)
         {   var newItem, ID;
             
@@ -51,6 +67,34 @@ var budgetController=(function()
             data.allitems[type].push(newItem);
             return newItem;
         },
+        
+        
+        totalSumCalc: function()
+        {
+            sumCalc('exp');
+            sumCalc('inc');
+
+            data.budget=data.totalitems.inc-data.totalitems.exp;
+            
+            if (data.totalitems.inc>0)
+            data.percentage=Math.round((data.totalitems.exp/data.totalitems.inc)*100);
+
+            else
+            data.percentage=-1;
+
+        },
+
+        getBudget: function()
+        {
+            return {
+                budget: data.budget,
+                totalincome: data.totalitems.inc,
+                totalexpense: data.totalitems.exp,
+                percentage: data.percentage
+            }
+        },
+        
+        
         testing: function()
         {
             console.log(data);
@@ -75,12 +119,18 @@ var UIController=(function()
         inputValue: '.add__value',
         clickButton: '.add__btn',
         expenseContainer: '.expenses__list',
-        incomeContainer: '.income__list'
+        incomeContainer: '.income__list',
+        budgetContainer: '.budget__value',
+        totalIncContainer: '.budget__income--value',
+        totalExpContainer: '.budget__expenses--value',
+        percentageContainer: '.budget__expenses--percentage'
                        
     };
 
 
     return {
+        
+        
         getInputData: function()
         {
             return {
@@ -89,10 +139,13 @@ var UIController=(function()
                 inputNumber: parseFloat(document.querySelector(DOMStrings.inputValue).value)
             };
         },
+        
+        
         getDom: function(){
             return DOMStrings;
         },
 
+        
         addListItem: function(obj,type)
         {
             var html,newhtml,element;
@@ -115,6 +168,7 @@ var UIController=(function()
 
         },
 
+        
         clearList: function(){
             var fields,fieldArr;
             fields=document.querySelectorAll(DOMStrings.inputDescription+','+DOMStrings.inputValue);
@@ -126,6 +180,25 @@ var UIController=(function()
             }
 
             fieldArr[0].focus();
+        },
+
+
+        updateBudgetUI: function(obj){
+
+            
+            document.querySelector(DOMStrings.budgetContainer).textContent=obj.budget;
+            document.querySelector(DOMStrings.totalIncContainer).textContent=obj.totalincome;
+            document.querySelector(DOMStrings.totalExpContainer).textContent=obj.totalexpense;
+            
+            
+            if (obj.percentage>0)
+            {
+                document.querySelector(DOMStrings.percentageContainer).textContent=obj.percentage+'%';
+            }
+
+            else{
+                document.querySelector(DOMStrings.percentageContainer).textContent='---';
+            }
         }
     };
 
@@ -156,6 +229,12 @@ var Controller=(function(BudgetCon,UICon)
 
     var updateBudget=function()
     {
+        BudgetCon.totalSumCalc();
+
+        var budget=BudgetCon.getBudget();
+
+        UICon.updateBudgetUI(budget);
+
 
     }
 
@@ -184,6 +263,12 @@ var Controller=(function(BudgetCon,UICon)
         init: function()
         {
             console.log('Application Has Started');
+            UICon.updateBudgetUI({
+                budget: 0,
+                totalincome: 0,
+                totalexpense: 0,
+                percentage: 0
+            });
             return setupEvent();
         }
 
