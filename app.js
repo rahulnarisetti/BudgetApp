@@ -175,6 +175,37 @@ var UIController=(function()
                        
     };
 
+    formatNumber= function(num,type){
+        var num,numSplit,int;
+        num=Math.abs(num);
+        num=num.toFixed(2);
+
+        numSplit=num.split('.');
+        int=numSplit[0];
+
+        if (int.length>9)
+        {   int=int.substr(0,int.length-9)+','+int.substr(int.length-9,3)+','+int.substr(int.length-6,3)+','+int.substr(int.length-3,3);
+       
+        }
+        
+        else if (int.length>6)
+         {   int=int.substr(0,int.length-6)+','+int.substr(int.length-6,3)+','+int.substr(int.length-3,3);
+        
+         }
+
+        else if (int.length>3) 
+        {
+            int=int.substr(0,int.length-3)+','+int.substr(int.length-3,3);
+            
+        }
+
+        
+
+        dec=numSplit[1];
+
+        return (type==='exp' ? '-':'+')+''+int+'.'+dec;
+    }
+
 
     return {
         
@@ -210,7 +241,7 @@ var UIController=(function()
 
             newhtml=html.replace('%id%',obj.id);
             newhtml=newhtml.replace('%des%',obj.des);
-            newhtml=newhtml.replace('%value%',obj.value);
+            newhtml=newhtml.replace('%value%',formatNumber(obj.value,type));
 
             document.querySelector(element).insertAdjacentHTML('beforeend',newhtml);
 
@@ -232,11 +263,12 @@ var UIController=(function()
 
 
         updateBudgetUI: function(obj){
-
+            var type;
+            obj.budget<0? type='exp':type='inc';
             
-            document.querySelector(DOMStrings.budgetContainer).textContent=obj.budget;
-            document.querySelector(DOMStrings.totalIncContainer).textContent=obj.totalincome;
-            document.querySelector(DOMStrings.totalExpContainer).textContent=obj.totalexpense;
+            document.querySelector(DOMStrings.budgetContainer).textContent=formatNumber(obj.budget,type);
+            document.querySelector(DOMStrings.totalIncContainer).textContent=formatNumber(obj.totalincome,'inc');
+            document.querySelector(DOMStrings.totalExpContainer).textContent=formatNumber(obj.totalexpense,'exp');
             
             
             if (obj.percentage>0)
@@ -277,6 +309,8 @@ var UIController=(function()
                     current.textContent='---';
             })
         }
+
+        
     };
 
 })();
