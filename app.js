@@ -171,7 +171,8 @@ var UIController=(function()
         totalExpContainer: '.budget__expenses--value',
         percentageContainer: '.budget__expenses--percentage',
         deleteContainer: '.container',
-        percentageExpLabel:'.item__percentage'
+        percentageExpLabel:'.item__percentage',
+        dateLabel: '.budget__title--month'
                        
     };
 
@@ -205,6 +206,14 @@ var UIController=(function()
 
         return (type==='exp' ? '-':'+')+''+int+'.'+dec;
     }
+
+    nodeForEach=function(list,callback)
+            {
+                for (var i=0;i<list.length;i++)
+                {
+                    callback(list[i],i);
+                }
+            }
 
 
     return {
@@ -292,13 +301,7 @@ var UIController=(function()
         {
             var fields=document.querySelectorAll(DOMStrings.percentageExpLabel);
 
-            nodeForEach=function(list,callback)
-            {
-                for (var i=0;i<list.length;i++)
-                {
-                    callback(list[i],i);
-                }
-            }
+            
 
             nodeForEach(fields,function(current,index)
             {
@@ -308,6 +311,33 @@ var UIController=(function()
                 else
                     current.textContent='---';
             })
+        },
+
+        displayMonth: function()
+        {
+            var now,year,month;
+            var months='January,Febuary,March,April,May,June,July,August,September,October,November,December';
+            months=months.split(',');
+            now=new Date();
+            year=now.getFullYear();
+            month=now.getMonth();
+            document.querySelector(DOMStrings.dateLabel).textContent=months[month]+' '+year;
+        },
+
+
+        changeColor: function()
+        { 
+            var fields=document.querySelectorAll(
+            DOMStrings.inputType+','+DOMStrings.inputDescription+','+DOMStrings.inputValue
+            );
+
+            nodeForEach(fields,function(current)
+            {
+                current.classList.toggle('red-focus');
+            });
+
+            document.querySelector(DOMStrings.clickButton).classList.toggle('red');
+
         }
 
         
@@ -338,6 +368,8 @@ var Controller=(function(BudgetCon,UICon)
         
 
         document.querySelector(DOM.deleteContainer).addEventListener('click',deleteEvent);
+
+        document.querySelector(DOM.inputType).addEventListener('change',UICon.changeColor);
 
     };
 
@@ -420,6 +452,8 @@ var Controller=(function(BudgetCon,UICon)
                 totalexpense: 0,
                 percentage: 0
             });
+
+            UICon.displayMonth();
             return setupEvent();
         }
 
